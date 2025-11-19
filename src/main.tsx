@@ -5,7 +5,8 @@ import App from './app/app';
 import { loadSeedData } from './utils/seedData';
 
 // Load seed data on app start for development/testing
-loadSeedData();
+// Take this line out if you don't want the seed data to be loaded automatically
+// loadSeedData();
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
