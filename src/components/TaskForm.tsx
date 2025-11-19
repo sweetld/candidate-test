@@ -1,5 +1,5 @@
-import { Task, TaskStatus, TaskPriority } from '../types/task';
-import { useState } from 'react';
+import {Task, TaskPriority, TaskStatus} from '../types/task';
+import {useState} from 'react';
 
 interface TaskFormProps {
   onSubmit: (task: Omit<Task, 'id' | 'createdAt'>) => void;
@@ -17,12 +17,14 @@ export const TaskForm = ({
     initialTask?.description || ''
   );
   const [status, setStatus] = useState<TaskStatus>(
-    initialTask?.status || 'todo'
+    initialTask?.status ?? TaskStatus.TODO
   );
   const [priority, setPriority] = useState<TaskPriority>(
-    initialTask?.priority || 'medium'
+    initialTask?.priority ?? TaskPriority.MEDIUM
   );
   const [dueDate, setDueDate] = useState(initialTask?.dueDate || '');
+  // Added state for tags to allow users to input tags for the task
+  const [tags, setTags] = useState<string[]>(initialTask?.tags || []);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,17 +35,23 @@ export const TaskForm = ({
       status,
       priority,
       dueDate: dueDate || undefined,
-      tags: [],
+        tags: tags
+            .map(t => t.trim())
+            .filter(t => t.length > 0),   // remove empties
     };
 
     onSubmit(task);
 
     // Reset form
-    setTitle('');
-    setDescription('');
-    setStatus('todo');
-    setPriority('medium');
-    setDueDate('');
+    if (!initialTask) {
+      setTitle('');
+      setDescription('');
+      setStatus(TaskStatus.TODO);
+      setPriority(TaskPriority.MEDIUM);
+      setDueDate('');
+      // Added reset for tags to ensure form is fully cleared
+      setTags([]);
+    }
   };
 
   return (
@@ -63,6 +71,9 @@ export const TaskForm = ({
           onChange={(e) => setTitle(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Enter task title"
+          // Added validation to ensure that the user has to enter something for the task title
+          required
+          aria-required="true"
         />
       </div>
 
@@ -99,9 +110,9 @@ export const TaskForm = ({
             onChange={(e) => setStatus(e.target.value as TaskStatus)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="todo">To Do</option>
-            <option value="in-progress">In Progress</option>
-            <option value="done">Done</option>
+            <option value={TaskStatus.TODO}>To Do</option>
+            <option value={TaskStatus.IN_PROGRESS}>In Progress</option>
+            <option value={TaskStatus.DONE}>Done</option>
           </select>
         </div>
 
@@ -119,9 +130,9 @@ export const TaskForm = ({
             onChange={(e) => setPriority(e.target.value as TaskPriority)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value={TaskPriority.LOW}>Low</option>
+            <option value={TaskPriority.MEDIUM}>Medium</option>
+            <option value={TaskPriority.HIGH}>High</option>
           </select>
         </div>
       </div>
@@ -143,6 +154,29 @@ export const TaskForm = ({
         />
       </div>
 
+      {/*Added input field for tags to allow users to categorize tasks*/}
+      <div className="mb-4">
+        <label
+            htmlFor="tags"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Tags (comma separated)
+          </label>
+          <input
+            type="text"
+            id="tags"
+            name="tags"
+            value={tags.join(', ')}
+            onChange={(e) => setTags(e.target.value.split(',').map(tag => tag.trim()))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-describedby="tags-help"
+            placeholder="e.g. work, personal, urgent"
+          />
+          <p id="tags-help" className="sr-only">
+              Separate tags with commas, for example: work, personal, urgent.
+          </p>
+      </div>
+
       <div className="flex gap-2">
         <button
           type="submit"
@@ -154,7 +188,7 @@ export const TaskForm = ({
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+            className="flex-1 bg-gray-700 text-white py-2 px-4 rounded-md hover:bg-gray-800 transition-colors"
           >
             Cancel
           </button>

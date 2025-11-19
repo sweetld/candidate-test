@@ -18,23 +18,32 @@ export const useTasks = () => {
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
     };
-    setTasks([...tasks, task]);
+
+    setTasks(prevTasks => {
+      const updatedTasks = [...prevTasks, task];
+      saveTasksToStorage(updatedTasks);    // ✅ persist new tasks
+      return updatedTasks;
+    });
   };
 
   const updateTask = (id: string, updates: Partial<Task>) => {
-    const updatedTasks = tasks.map((task) =>
-      task.id === id ? { ...task, ...updates } : task
-    );
-    setTasks(updatedTasks);
-    saveTasksToStorage(updatedTasks);
+    // Use functional state update to ensure we have the latest state
+    setTasks(prevTasks => {
+      const updatedTasks = prevTasks.map((task) =>
+        task.id === id ? { ...task, ...updates } : task
+      );
+      saveTasksToStorage(updatedTasks);
+      return updatedTasks;
+    })
   };
 
   const deleteTask = (id: string) => {
-    const taskIndex = tasks.findIndex((task) => task.id === id);
-    if (taskIndex !== -1) {
-      tasks.splice(taskIndex, 1);
-      saveTasksToStorage(tasks);
-    }
+    // Use functional state update to ensure we have the latest state, also fixes issue with mutating state directly
+    setTasks(prevTasks => {
+      const updatedTasks = prevTasks.filter(task => task.id !== id);
+      saveTasksToStorage(updatedTasks);
+      return updatedTasks;
+    });
   };
 
   return {
