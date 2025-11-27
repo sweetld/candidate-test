@@ -1,4 +1,4 @@
-import { Task } from '../types/task';
+import {Task, TaskPriority, TaskStatus, TASK_PRIORITY_BADGE_CLASSES, TASK_STATUS_BADGE_CLASSES} from '../types/task';
 
 interface TaskCardProps {
   task: Task;
@@ -7,24 +7,13 @@ interface TaskCardProps {
 }
 
 export const TaskCard = ({ task, onUpdate, onDelete }: TaskCardProps) => {
-  const priorityColors = {
-    low: 'bg-green-100 text-green-800',
-    medium: 'bg-yellow-100 text-yellow-800',
-    high: 'bg-red-100 text-red-800',
-  };
-
-  const statusColors = {
-    todo: 'bg-gray-100 text-gray-800',
-    'in-progress': 'bg-blue-100 text-blue-800',
-    done: 'bg-green-100 text-green-800',
-  };
 
   const handleDelete = () => {
     onDelete(task.id);
   };
 
   const handleStatusToggle = () => {
-    const statuses: Task['status'][] = ['todo', 'in-progress', 'done'];
+    const statuses: Task['status'][] = [TaskStatus.TODO, TaskStatus.IN_PROGRESS, TaskStatus.DONE];
     const currentIndex = statuses.indexOf(task.status);
     const nextIndex = (currentIndex + 1) % statuses.length;
     const nextStatus = statuses[nextIndex];
@@ -33,26 +22,29 @@ export const TaskCard = ({ task, onUpdate, onDelete }: TaskCardProps) => {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'No due date';
-    return dateString; // Should format to readable date
+      // Added date formatting to improve readability for the user, also guard against invalid dates
+      const date = new Date(dateString);
+      return isNaN(date.getTime()) ? dateString : date.toLocaleDateString();
   };
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-2">
-        <h3 className="text-lg font-semibold text-gray-800 wrap-break-word">
+          {/*Corrected CSS className from "wrap-break-word" to "break-words" as expected by Tailwind */}
+        <h3 className="text-lg font-semibold text-gray-800 break-words">
           {task.title}
         </h3>
         <div className="flex gap-2 flex-wrap">
           <span
             className={`px-2 py-1 text-xs rounded-full ${
-              priorityColors[task.priority]
+              TASK_PRIORITY_BADGE_CLASSES[task.priority]
             }`}
           >
             {task.priority}
           </span>
           <span
             className={`px-2 py-1 text-xs rounded-full ${
-              statusColors[task.status]
+              TASK_STATUS_BADGE_CLASSES[task.status]
             }`}
           >
             {task.status}
@@ -60,9 +52,9 @@ export const TaskCard = ({ task, onUpdate, onDelete }: TaskCardProps) => {
         </div>
       </div>
 
-      <p className="text-gray-600 mb-3">{task.description}</p>
+      <p className="text-gray-700 mb-3">{task.description}</p>
 
-      <div className="text-sm text-gray-500 mb-3">
+      <div className="text-sm text-gray-700 mb-3">
         <p>Due: {formatDate(task.dueDate)}</p>
         <p>Created: {new Date(task.createdAt).toLocaleDateString()}</p>
       </div>
@@ -70,9 +62,10 @@ export const TaskCard = ({ task, onUpdate, onDelete }: TaskCardProps) => {
       {task.tags && task.tags.length > 0 && (
         <div className="mb-3">
           <div className="flex gap-2 flex-wrap">
-            {task.tags.map((tag, index) => (
+            {task.tags.map(tag => (
               <span
-                key={index}
+                // Changed to key from the tag, rather than index, to ensure unique keys and avoid potential React warnings
+                key={tag}
                 className="bg-gray-200 text-gray-700 px-2 py-1 text-xs rounded-full"
               >
                 #{tag}

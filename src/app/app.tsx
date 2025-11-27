@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useTasks } from '../hooks/useTasks';
 import { TaskForm } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
 import { TaskFilter } from '../components/TaskFilter';
+import { TaskAnalyticsDashboard } from '../components/TaskAnalyticsDashboard';
 import { TaskStatus } from '../types/task';
 
 export function App() {
@@ -11,27 +12,12 @@ export function App() {
   const [filter, setFilter] = useState<TaskStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const stats = useMemo(() => {
-    const total = tasks.length;
-    const todo = tasks.filter((t) => t.status === 'todo').length;
-    const inProgress = tasks.filter((t) => t.status === 'in-progress').length;
-    const done = tasks.filter((t) => t.status === 'done').length;
-
-    return {
-      total,
-      todo,
-      inProgress,
-      done,
-      completionRate: total > 0 ? (done / total) * 100 : 0,
-    };
-  }, [tasks]);
-
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-600 text-white p-6 shadow-lg">
         <div className="container mx-auto">
           <h1 className="text-3xl font-bold">Task Management System</h1>
-          <p className="text-blue-100 mt-2">
+          <p className="text-blue-50 mt-2">
             Organize and track your tasks efficiently
           </p>
         </div>
@@ -39,34 +25,20 @@ export function App() {
 
       <main className="container mx-auto px-4 py-8">
         {loading && (
-          <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+          <div
+            className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4"
+            role="status"
+            aria-live="polite"
+          >
             <p>Loading tasks...</p>
           </div>
         )}
 
-        {/* Statistics Dashboard */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-gray-500 text-sm">Total Tasks</h3>
-            <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-gray-500 text-sm">To Do</h3>
-            <p className="text-2xl font-bold text-yellow-600">{stats.todo}</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-gray-500 text-sm">In Progress</h3>
-            <p className="text-2xl font-bold text-blue-600">
-              {stats.inProgress}
-            </p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-gray-500 text-sm">Completed</h3>
-            <p className="text-2xl font-bold text-green-600">
-              {stats.done} ({stats.completionRate.toFixed(0)}%)
-            </p>
-          </div>
-        </div>
+        {/* Analytics Dashboard (metrics + donut chart) */}
+        <TaskAnalyticsDashboard
+          tasks={tasks}
+          onStatusFilterChange={setFilter}
+        />
 
         {/* Add Task Button */}
         <div className="mb-6">

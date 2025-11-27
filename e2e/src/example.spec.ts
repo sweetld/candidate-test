@@ -1,8 +1,18 @@
-import { test, expect } from '@playwright/test';
+import {test, expect} from '@playwright/test';
 
-test('has title', async ({ page }) => {
-  await page.goto('/');
+test.describe('App shell', () => {
+    test('shows Task Management System heading', async ({page}) => {
+        await page.goto('/');
 
-  // Expect h1 to contain a substring.
-  expect(await page.locator('h1').innerText()).toContain('Welcome');
+        await expect(
+            page.getByRole('heading', {
+                level: 1,
+                name: /task management system/i,
+            }),
+        ).toBeVisible();
+
+        await expect(
+            page.getByText(/organize and track your tasks efficiently/i),
+        ).toBeVisible();
+    });
 });
