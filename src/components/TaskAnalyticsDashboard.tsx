@@ -62,8 +62,8 @@ export const TaskAnalyticsDashboard: React.FC<TaskAnalyticsDashboardProps> = ({
         }).length;
 
         const chartData: StatusChartDatum[] = [
-            {name: 'To Do', status: TaskStatus.TODO, value: todo},
-            {name: 'In Progress', status: TaskStatus.IN_PROGRESS, value: inProgress},
+            {name: 'ToDo', status: TaskStatus.TODO, value: todo},
+            {name: 'In-Progress', status: TaskStatus.IN_PROGRESS, value: inProgress},
             {name: 'Done', status: TaskStatus.DONE, value: done},
         ].filter(data => data.value > 0); // hide empty slices
 
@@ -113,9 +113,8 @@ export const TaskAnalyticsDashboard: React.FC<TaskAnalyticsDashboardProps> = ({
                         Tasks by Status
                     </h3>
                     <p className="mt-2 text-sm text-gray-700">
-                        <span className="font-semibold">{statusCounts.todo}</span> To Do ·{' '}
-                        <span className="font-semibold">{statusCounts.inProgress}</span> In
-                        Progress ·{' '}
+                        <span className="font-semibold">{statusCounts.todo}</span> ToDo ·{' '}
+                        <span className="font-semibold">{statusCounts.inProgress}</span> In-Progress ·{' '}
                         <span className="font-semibold">{statusCounts.done}</span> Done
                     </p>
                 </div>
