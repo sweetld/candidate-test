@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "e2e": "nx e2e"
+    "e2e": "nx run e2e:e2e"
   },
   "nx": {
     "includedScripts": []
@@ -72,7 +72,7 @@
     "vitest": "^3.0.0"
   },
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=20.0.0",
     "npm": ">=9.0.0"
   }
 }
